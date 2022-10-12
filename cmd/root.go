@@ -14,9 +14,9 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "cow",
 	Short: "C.ustom O.perations W.indow",
-	Long: `c.o.w. is used to give you all sorts of informations about your system.
-			for example your IP-Adress, current logged in user, remaining storage, Internet connection
-			and so much more!`,
+	Long: `C.ustom O.perations W.indow (cow) is used to give you all sorts of informations about your system.
+for example your IP-Adress, current logged in user, remaining storage, Internet connection
+and so much more!`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },

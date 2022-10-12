@@ -6,7 +6,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"log"
 	"os/exec"
 )
 
@@ -15,37 +14,40 @@ var flags = []string{"all", "name", "ip", "wifi"}
 // systemCmd represents the system command
 var systemCmd = &cobra.Command{
 	Use:   "system",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Gives you information on your system",
+	Long: `Displays all sorts of information about your system. Current functions include:
+		--ip
+		--name
+		--wifi
+		--all`,
 	Run: func(cmd *cobra.Command, args []string) {
-		changed := false
-		for _, element := range flags {
-			if cmd.Flag(element).Changed {
-				changed = true
-				switch element {
-				case "all":
-					showAll()
-					break
-				case "ip":
-					showIp()
-				case "name":
-					showName()
-				case "wifi":
-					showWifi()
-				}
-			}
-		}
-		if !changed {
-			showAll()
-		}
+		systemMain(cmd)
 	},
 }
 
+func systemMain(cmd *cobra.Command) {
+	changed := false
+	fmt.Println(cmd.Flags())
+	for _, element := range flags {
+		if cmd.Flag(element).Changed {
+			changed = true
+			switch element {
+			case "all":
+				display(sysShowAll())
+				break
+			case "ip":
+				display(sysShowIp())
+			case "name":
+				display(sysShowName())
+			case "wifi":
+				display(sysShowWifi())
+			}
+		}
+	}
+	if !changed {
+		sysShowAll()
+	}
+}
 func init() {
 	rootCmd.AddCommand(systemCmd)
 
@@ -54,55 +56,39 @@ func init() {
 	systemCmd.Flags().BoolP("ip", "i", false, "shows the current ip adress")
 	systemCmd.Flags().BoolP("name", "n", false, "shows the current logged in user")
 	systemCmd.Flags().BoolP("wifi", "w", false, "shows information about the current wifi connection")
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// systemCmd.PersistentFlags().String("foo", "", "A help for foo")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// systemCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-func showAll() {
-	showName()
-	fmt.Println()
-	showIp()
-	fmt.Println()
-	showWifi()
+func sysShowAll() string {
+	return sysShowName() + "\n" + sysShowIp() + "\n" + sysShowWifi()
 }
-func showIp() {
+
+func sysShowIp() string {
 	var cmd2 = exec.Command("hostname", "-i")
 	var out, err = cmd2.Output()
+	catchError(err)
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("%s", out)
+	return string(out)
 }
 
-func showName() {
+func sysShowName() string {
 	var cmd2 = exec.Command("hostname")
 	var out, err = cmd2.Output()
+	catchError(err)
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("%s", out)
+	return string(out)
 }
-func showWifi() {
+
+func sysShowWifi() string {
 	var cmd2 = exec.Command("nmcli", "connection", "show")
 	var cmd3 = exec.Command("nmcli", "general", "status")
 	var out, err = cmd2.Output()
 	var out3, err3 = cmd3.Output()
 
-	if err3 != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%s\n", out3)
+	catchError(err3)
+	catchError(err)
+	return string(out3) + "\n" + string(out)
+}
 
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%s", out)
+func display(input string) {
+	fmt.Println(input)
 }

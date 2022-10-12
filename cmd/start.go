@@ -4,55 +4,123 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
-	"log"
-	"os/exec"
-
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"log"
+	"os"
 )
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "A detailed Prompt-Interface for your cow!",
+	Long:  `A detailed Prompt-Interface for your cow!`,
 	Run: func(cmd *cobra.Command, args []string) {
-		prompt := promptui.Select{
-			Label: "Select Day",
-			Items: []string{"System", "Weather", "Ping", "Exit"},
-		}
-		_, result, err := prompt.Run()
+		var promptSelect promptui.Select
+		viper.AutomaticEnv()
+		clWelcome := color.New(color.FgGreen)
+		name := viper.GetString("USER")
+		display("\n")
+		_, _ = clWelcome.Println("	---Welcome Home " + name + "---")
+		for true {
+			promptSelect = promptui.Select{
+				Label:        "Select Operation",
+				Items:        []string{"System", "Weather", "Ping", "Storage", "Exit"},
+				HideSelected: true,
+			}
+			_, result, err := promptSelect.Run()
 
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		switch result {
-		case "System":
-			cmd2 := exec.Command("cow", "system")
-			_ = cmd2.Start()
-		case "Weather":
-		case "Ping":
-		case "Exit":
+			catchError(err)
+
+			switch result {
+			case "System":
+				prgSystem(promptSelect)
+			case "Weather":
+				prgWeather(promptSelect)
+			case "Ping":
+				prgPing()
+			case "Storage":
+				showStorage()
+			case "Exit":
+				os.Exit(0)
+			}
 		}
 	},
+}
+
+func prgSystem(promptSelect promptui.Select) {
+	promptSelect = promptui.Select{
+		Label:        "Select specification",
+		Items:        []string{"- All", "- Ip", "- Name", "- Wifi", "- Exit"},
+		HideSelected: true,
+	}
+	_, result, err := promptSelect.Run()
+	catchError(err)
+
+	switch result {
+	case "- All":
+		display(sysShowAll())
+	case "- Ip":
+		display(sysShowIp())
+	case "- Name":
+		display(sysShowName())
+	case "- Wifi":
+		display(sysShowWifi())
+	case "- Exit":
+		break
+	}
+}
+
+func prgWeather(promptSelect promptui.Select) {
+	display(weatherShow())
+	for true {
+		promptSelect = promptui.Select{
+			Items:        []string{"- Change Location", "- Show Moon-phase", "- Exit"},
+			HideSelected: true,
+			HideHelp:     true,
+			Label:        "Weather",
+		}
+		_, result, err := promptSelect.Run()
+		catchError(err)
+
+		switch result {
+		case "- Change Location":
+			promptInput := promptui.Prompt{Label: "Location"}
+			result, err = promptInput.Run()
+			catchError(err)
+			display(weatherShowIn(result))
+		case "- Show Moon-phase":
+			moonShow()
+
+		case "- Exit":
+			break
+		}
+		if result == "- Exit" {
+			break
+		}
+	}
+}
+
+func prgPing() {
+	promptInput := promptui.Prompt{
+		Label:    "Adresse",
+		Validate: validatePing,
+	}
+	result, err := promptInput.Run()
+	catchError(err)
+	display(pingShow(result))
 }
 
 func init() {
 	rootCmd.AddCommand(startCmd)
 
-	// Here you will define your flags and configuration settings.
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func catchError(err error) {
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 }

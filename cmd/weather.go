@@ -4,9 +4,8 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
-	"io/ioutil"
+	"io"
 	"log"
 	"os/exec"
 )
@@ -14,39 +13,45 @@ import (
 // weatherCmd represents the weather command
 var weatherCmd = &cobra.Command{
 	Use:   "weather",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Displays the current weather to you",
+	Long:  `Displays the weather to you. This can be at your location or at one you enter`,
 	Run: func(cmd *cobra.Command, args []string) {
-		location, _ := cmd.Flags().GetString("location")
-		command := "wttr.in/" + location + "?format=3"
-
-		cmd2 := exec.Command("curl", command)
-		stdout, err := cmd2.StdoutPipe()
-		if err != nil {
-			log.Fatal(err)
+		if cmd.Flags().Changed("moon") {
+			moonShow()
+		} else {
+			location, _ := cmd.Flags().GetString("location")
+			display(weatherShowIn(location))
 		}
-
-		if err := cmd2.Start(); err != nil {
-			log.Fatal(err)
-		}
-
-		data, err := ioutil.ReadAll(stdout)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if err := cmd2.Wait(); err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Printf("%s", string(data))
 	},
+}
+
+func weatherShow() string {
+	return weatherShowIn("")
+}
+func weatherShowIn(location string) string {
+	command := "wttr.in/" + location + "?format=3"
+
+	cmd2 := exec.Command("curl", command)
+	stdout, err := cmd2.StdoutPipe()
+	catchError(err)
+
+	if err := cmd2.Start(); err != nil {
+		log.Fatal(err)
+	}
+	data, err := io.ReadAll(stdout)
+	catchError(err)
+
+	if err := cmd2.Wait(); err != nil {
+		log.Println("ERROR: location unknown")
+	}
+	return string(data)
+}
+
+func moonShow() {
+	cmd2 := exec.Command("curl", "wttr.in/moon")
+	out, err := cmd2.Output()
+	catchError(err)
+	display(string(out))
 }
 
 func init() {
@@ -54,12 +59,6 @@ func init() {
 
 	// Here you will define your flags and configuration settings.
 	weatherCmd.Flags().StringP("location", "l", "", "Gives you the current weather at a given location")
+	weatherCmd.Flags().BoolP("moon", "m", false, "Displays the current moon-phase")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// weatherCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// weatherCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
