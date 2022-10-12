@@ -4,6 +4,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"github.com/spf13/viper"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -31,6 +32,7 @@ func Execute() {
 }
 
 func init() {
+	viper.AutomaticEnv()
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
