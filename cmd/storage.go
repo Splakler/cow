@@ -1,6 +1,4 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-*/
+// Package cmd /*
 package cmd
 
 import (
@@ -52,7 +50,7 @@ func showStorage() {
 func calcStorage() []int {
 	out := getStorage()
 
-	lines := strings.Split(string(out), "\n")
+	lines := strings.Split(out, "\n")
 	outStr := lines[1]
 	lines = strings.Fields(outStr)
 	outStr = fmt.Sprintf("%s/%s/%s/%s", lines[1], lines[2], lines[3], lines[4])
