@@ -1,10 +1,11 @@
 /*
 Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
 */
 package main
 
-import "cow/cmd"
+import (
+	"cow/cmd"
+)
 
 func main() {
 	cmd.Execute()

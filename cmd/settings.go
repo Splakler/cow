@@ -13,13 +13,9 @@ import (
 // settingsCmd represents the settings command
 var settingsCmd = &cobra.Command{
 	Use:   "settings",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Changes your config",
+	Long: `With this you can change your config file. This is only important if you are using the interactive prompt.
+If not then those settings wont have any effect at all for you.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var flags = []string{"name", "location", "color"}
 		for _, element := range flags {

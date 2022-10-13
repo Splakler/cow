@@ -71,13 +71,13 @@ func prgSystem(promptSelect promptui.Select) {
 
 	switch result {
 	case "- All":
-		display(sysShowAll())
+		sysShowAll()
 	case "- Ip":
-		display(sysShowIp())
+		sysShowIp()
 	case "- Name":
-		display(sysShowName())
+		sysShowName()
 	case "- Wifi":
-		display(sysShowWifi())
+		sysShowWifi()
 	case "- Exit":
 		break
 	}

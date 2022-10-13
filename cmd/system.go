@@ -2,9 +2,9 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"os/exec"
+	"strings"
 )
 
 // systemCmd represents the system command
@@ -29,14 +29,14 @@ func systemMain(cmd *cobra.Command) {
 			changed = true
 			switch element {
 			case "all":
-				display(sysShowAll())
+				sysShowAll()
 				break
 			case "ip":
-				display(sysShowIp())
+				sysShowIp()
 			case "name":
-				display(sysShowName())
+				sysShowName()
 			case "wifi":
-				display(sysShowWifi())
+				sysShowWifi()
 			}
 		}
 	}
@@ -54,27 +54,29 @@ func init() {
 	systemCmd.Flags().BoolP("wifi", "w", false, "shows information about the current wifi connection")
 
 }
-func sysShowAll() string {
-	return sysShowName() + "\n" + sysShowIp() + "\n" + sysShowWifi()
+func sysShowAll() {
+	sysShowName()
+	sysShowIp()
+	sysShowWifi()
 }
 
-func sysShowIp() string {
+func sysShowIp() {
 	var cmd2 = exec.Command("hostname", "-i")
 	var out, err = cmd2.Output()
 	catchError(err)
 
-	return string(out)
+	writeTable([]string{strings.TrimSpace(string(out))}, []string{"Ip Adress"})
 }
 
-func sysShowName() string {
+func sysShowName() {
 	var cmd2 = exec.Command("hostname")
 	var out, err = cmd2.Output()
 	catchError(err)
 
-	return string(out)
+	writeTable([]string{strings.TrimSpace(string(out))}, []string{"Hostname"})
 }
 
-func sysShowWifi() string {
+func sysShowWifi() {
 	var cmd2 = exec.Command("nmcli", "connection", "show")
 	var cmd3 = exec.Command("nmcli", "general", "status")
 	var out, err = cmd2.Output()
@@ -82,9 +84,6 @@ func sysShowWifi() string {
 
 	catchError(err3)
 	catchError(err)
-	return string(out3) + "\n" + string(out)
-}
-
-func display(input string) {
-	fmt.Println(input)
+	writeTable([]string{strings.TrimSpace(string(out3))}, []string{"Wifi Status"})
+	writeTable([]string{strings.TrimSpace(string(out))}, []string{"Wifi Details"})
 }

@@ -16,19 +16,18 @@ var storageCmd = &cobra.Command{
 	Short: "Gives you information about your storage usage",
 	Long:  `Shows you a graphical representation of your Storage in GigaBytes`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("storage called")
 		showStorage()
 	},
 }
 
 func showStorage() {
 	display("")
-	display(getStorage())
+	writeTable([]string{convertStorage(strings.Split(getStorage(), "\n")[1])}, []string{"Filesystem", "Size", "Used", "Avail", "Used %", "Mounted on"})
 	display("")
 
 	storage := calcStorage()
 	full, total := storage[1], storage[0]
-	length := 20
+	length := 40
 	used := int((float32(full) / (float32(total))) * (float32(length)))
 	var usedStr, unUsedStr string
 	for i := 1; i <= used; i++ {
@@ -75,5 +74,11 @@ func getStorage() string {
 }
 func init() {
 	rootCmd.AddCommand(storageCmd)
+}
 
+func convertStorage(input string) string {
+	for strings.Contains(input, "  ") {
+		input = strings.Replace(input, "  ", " ", -1)
+	}
+	return strings.Replace(input, " ", "  ", -1)
 }
