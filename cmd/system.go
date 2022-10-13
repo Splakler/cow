@@ -7,8 +7,6 @@ import (
 	"os/exec"
 )
 
-var flags = []string{"all", "name", "ip", "wifi"}
-
 // systemCmd represents the system command
 var systemCmd = &cobra.Command{
 	Use:   "system",
@@ -24,8 +22,8 @@ var systemCmd = &cobra.Command{
 }
 
 func systemMain(cmd *cobra.Command) {
+	var flags = []string{"all", "name", "ip", "wifi"}
 	changed := false
-	fmt.Println(cmd.Flags())
 	for _, element := range flags {
 		if cmd.Flag(element).Changed {
 			changed = true

@@ -2,12 +2,12 @@
 package cmd
 
 import (
-	"github.com/fatih/color"
+	"fmt"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
 	"os"
+	"os/exec"
 )
 
 // startCmd represents the start command
@@ -18,15 +18,15 @@ var startCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var promptSelect promptui.Select
 		viper.AutomaticEnv()
-		clWelcome := color.New(color.FgGreen)
-		name := viper.GetString("USER")
-		display("\n")
-		_, _ = clWelcome.Println("	---Welcome Home " + name + "---")
+
+		displayWelcome()
+
 		for true {
 			promptSelect = promptui.Select{
 				Label:        "Select Operation",
-				Items:        []string{"System", "Weather", "Ping", "Storage", "Exit"},
+				Items:        []string{"System", "Weather", "Ping", "Storage", "Settings", "Clear", "Exit"},
 				HideSelected: true,
+				Size:         10,
 			}
 			_, result, err := promptSelect.Run()
 
@@ -41,11 +41,23 @@ var startCmd = &cobra.Command{
 				prgPing()
 			case "Storage":
 				showStorage()
+				displayWelcome()
+			case "Settings":
+				prgSettings(promptSelect)
+			case "Clear":
+				clear()
+				displayWelcome()
 			case "Exit":
 				os.Exit(0)
 			}
 		}
 	},
+}
+
+func clear() {
+	cmd2 := exec.Command("clear")
+	cmd2.Stdout = os.Stdout
+	_ = cmd2.Run()
 }
 
 func prgSystem(promptSelect promptui.Select) {
@@ -69,6 +81,7 @@ func prgSystem(promptSelect promptui.Select) {
 	case "- Exit":
 		break
 	}
+	displayWelcome()
 }
 
 func prgWeather(promptSelect promptui.Select) {
@@ -99,6 +112,7 @@ func prgWeather(promptSelect promptui.Select) {
 			break
 		}
 	}
+	displayWelcome()
 }
 
 func prgPing() {
@@ -109,16 +123,55 @@ func prgPing() {
 	result, err := promptInput.Run()
 	catchError(err)
 	display(pingShow(result))
+	displayWelcome()
+}
+
+func prgSettings(promptSelect promptui.Select) {
+	promptSelect = promptui.Select{
+		Label:        "Select Setting",
+		Items:        []string{"- Name", "- Location", "- Color", "- Exit"},
+		HideSelected: true,
+	}
+	_, name, err := promptSelect.Run()
+	catchError(err)
+
+	if name == "- Exit" {
+		return
+	}
+
+	var input string
+	if name != "- Color" {
+		labelStr := "Change " + name[2:]
+		promptInput := promptui.Prompt{
+			Label: labelStr,
+		}
+		input, err = promptInput.Run()
+		catchError(err)
+	} else {
+		fmt.Println("Your current Color is: " + viper.GetString("welcomeClr"))
+		promptSelect = promptui.Select{
+			Label:        "Select a Color",
+			Items:        colors,
+			HideSelected: true,
+		}
+		_, input, err = promptSelect.Run()
+		catchError(err)
+	}
+
+	switch name {
+	case "- Name":
+		changeConfig("name", input)
+	case "- Location":
+		changeConfig("stdLocation", input)
+	case "- Color":
+		changeConfig("welcomeClr", input)
+	case "- Exit":
+		break
+	}
+	displayWelcome()
 }
 
 func init() {
 	rootCmd.AddCommand(startCmd)
 
-}
-
-func catchError(err error) {
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
 }

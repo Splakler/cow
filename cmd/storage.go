@@ -42,7 +42,7 @@ func showStorage() {
 	cPercent := color.New(color.FgRed)
 	_, _ = cUsed.Print(usedStr)
 	_, _ = cUnUsed.Print(unUsedStr)
-	_, _ = cPercent.Println("	", storage[3], "%")
+	_, _ = cPercent.Println("	" + strconv.Itoa(storage[3]) + "% used")
 	display("")
 }
 
@@ -76,13 +76,4 @@ func getStorage() string {
 func init() {
 	rootCmd.AddCommand(storageCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// storageCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// storageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

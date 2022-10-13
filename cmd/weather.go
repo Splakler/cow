@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"io"
 	"log"
 	"os/exec"
@@ -18,13 +19,16 @@ var weatherCmd = &cobra.Command{
 			moonShow()
 		} else {
 			location, _ := cmd.Flags().GetString("location")
+			if location == "" {
+				location = viper.GetString("stdLocation")
+			}
 			display(weatherShowIn(location))
 		}
 	},
 }
 
 func weatherShow() string {
-	return weatherShowIn("")
+	return weatherShowIn(viper.GetString("stdLocation"))
 }
 func weatherShowIn(location string) string {
 	command := "wttr.in/" + location + "?format=3"
