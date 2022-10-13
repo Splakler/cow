@@ -2,23 +2,32 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
-	"strings"
-
-	"github.com/spf13/cobra"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "cow",
 	Short: "C.ustom O.perations W.indow",
-	Long: `C.ustom O.perations W.indow (cow) is used to give you all sorts of informations about your system.
+	Long: `
+ .----------------.  .----------------.  .----------------. 
+| .--------------. || .--------------. || .--------------. |
+| |     ______   | || |     ____     | || | _____  _____ | |
+| |   .' ___  |  | || |   .'    '.   | || ||_   _||_   _|| |
+| |  / .'   \_|  | || |  /  .--.  \  | || |  | | /\ | |  | |
+| |  | |         | || |  | |    | |  | || |  | |/  \| |  | |
+| |  \ '.___.'\  | || |  \  '--'  /  | || |  |   /\   |  | |
+| |   '._____.'  | || |   '.____.'   | || |  |__/  \__|  | |
+| |              | || |              | || |              | |
+| '--------------' || '--------------' || '--------------' |
+ '----------------'  '----------------'  '----------------'
+       Custom            Operations            Window
+
+is used to give you all sorts of informations about your system.
 for example your IP-Adress, current logged in user, remaining storage, Internet connection
 and so much more!`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -32,14 +41,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cow.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
@@ -51,12 +53,4 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 	}
-}
-
-func configSetup() {
-	initConfig()
-	viper.AutomaticEnv()
-	viper.Set("name", strings.ToTitle(strings.ToLower(viper.GetString("USER"))))
-	viper.Set("stdLocation", "")
-	viper.Set("welcomeClr", "Green")
 }
